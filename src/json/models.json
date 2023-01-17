@@ -1,0 +1,13 @@
+{
+    "guide": {
+        "url": "./glb/guide.glb",
+        "userData": {
+            "animation": {
+                "loop": true
+            }
+        }
+    },
+    "sword": {
+        "url": "./glb/sword.glb"
+    }
+}
