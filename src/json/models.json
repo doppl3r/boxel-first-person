@@ -1,4 +1,7 @@
 {
+    "grass-fairway": {
+        "url": "./glb/grass-fairway.glb"
+    },
     "guide": {
         "url": "./glb/guide.glb",
         "userData": {

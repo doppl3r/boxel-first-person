@@ -1,4 +1,6 @@
-import { Clock, PerspectiveCamera, PCFSoftShadowMap, Scene, Vector3, WebGLRenderer } from 'three';
+import { Clock, PerspectiveCamera, PCFSoftShadowMap, WebGLRenderer } from 'three';
+import { Controls } from './controls';
+import { World } from './world';
 import { Assets } from './assets';
 import Stats from './stats.js';
 
@@ -15,9 +17,12 @@ class App {
         this.renderInterval = 1 / this.renderTickRate;
         this.stats = new Stats();
         this.assets = new Assets();
-        this.scene = new Scene();
+        this.world = new World();
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 4000);
         this.camera.up.set(0, 0, 1); // z-up
+        this.camera.position.set(0, -4, 4);
+        this.camera.lookAt(0, 0, 0);
+        this.controls = new Controls(this.camera, document.body);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
@@ -37,7 +42,7 @@ class App {
     }
 
     init() {
-        console.log('initialized');
+        this.world.init(this.assets);
     }
 
     update() {
@@ -55,7 +60,7 @@ class App {
 
         // Refresh renderer on a higher (or unlimited) interval
         this.renderDeltaSum += delta;
-        if (this.renderDeltaSum > this.renderInterval || this.renderTickRate < 0) {
+        if (this.renderDeltaSum > this.renderInterval || this.renderTickRate < 0 || alpha == 1) {
             this.renderDeltaSum %= this.renderInterval;
             this.updateRender(delta, alpha);
         }
@@ -71,22 +76,13 @@ class App {
         if (this.renderTickRate > 0) delta = this.renderInterval;
 
         // Loop through all child objects
-        for (var i = 0; i < this.scene.children.length; i++) {
-            var child = this.scene.children[i];
+        this.world.update(delta, alpha);
 
-            // Update 3D object to rigid body position
-            if (child?.body?.type == 1) {
-                child.update(delta, alpha, this.debugger);
-            }
-
-            // Update animations
-            if (child.animation) {
-                child.animation.update(delta);
-            }
-        }
+        // Update controls
+        this.controls.update(delta, alpha);
 
         // Render new scene
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.world, this.camera);
         this.stats.end(); // End FPS counter
     }
 
