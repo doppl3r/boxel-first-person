@@ -3,6 +3,7 @@ import { Scene, HemisphereLight } from 'three';
 class World extends Scene {
     constructor() {
         super();
+        this.name = 'world';
     }
 
     init(assets) {
@@ -19,24 +20,33 @@ class World extends Scene {
             }
         }
 
+        // Add test cube
+        var model = assets.models.clone('grass-fairway');
+        model.position.set(1, 1, 1);
+        model.rotation.set(0, 0, Math.PI / 8);
+        this.add(model);
+
         // Add basic environment light
         var hemisphere = new HemisphereLight('#ffffff', '#000000', 1);
         hemisphere.position.set(0, -1, 2);
         this.add(hemisphere);
     }
 
-    update(delta, alpha) {
-        for (var i = 0; i < this.children.length; i++) {
-            var child = this.children[i];
-
-            // Update 3D object to rigid body position
-            if (child?.body?.type == 1) {
-                child.update(delta, alpha, this.debugger);
-            }
-
-            // Update animations
-            if (child.animation) {
-                child.animation.update(delta);
+    update(delta, alpha, interval) {
+        // Update physics when alpha = 1
+        if (alpha == 1) {
+            for (var i = 0; i < this.children.length; i++) {
+                var child = this.children[i];
+    
+                // Update 3D object to rigid body position
+                if (child?.body) {
+                    child.update(delta, alpha, interval);
+                }
+    
+                // Update animations
+                if (child.animation) {
+                    child.animation.update(delta);
+                }
             }
         }
     }

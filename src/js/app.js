@@ -1,6 +1,7 @@
-import { Clock, PerspectiveCamera, PCFSoftShadowMap, WebGLRenderer } from 'three';
+import { Clock, PCFSoftShadowMap, WebGLRenderer } from 'three';
 import { Controls } from './controls';
 import { World } from './world';
+import { Player } from './player';
 import { Assets } from './assets';
 import Stats from './stats.js';
 
@@ -17,12 +18,11 @@ class App {
         this.renderInterval = 1 / this.renderTickRate;
         this.stats = new Stats();
         this.assets = new Assets();
+        this.player = new Player();
         this.world = new World();
-        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 4000);
-        this.camera.up.set(0, 0, 1); // z-up
-        this.camera.position.set(0, -4, 4);
-        this.camera.lookAt(0, 0, 0);
-        this.controls = new Controls(this.camera, document.body);
+        this.world.add(this.player);
+        this.camera = this.player.camera;
+        this.controls = new Controls(this.camera, this.world, document.body);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
@@ -30,6 +30,11 @@ class App {
         // Append renderer to canvas
         document.body.appendChild(this.renderer.domElement);
         document.body.appendChild(this.stats.dom);
+        
+        // Add event listeners
+        document.addEventListener('visibilitychange', function(e) { _this.visibilityChange(); });
+        document.addEventListener('click', function () { _this.controls.lock(); });
+        window.addEventListener('resize', function(e) { _this.resizeWindow(e); });
 
         // Resize window
         this.resizeWindow();
@@ -37,7 +42,7 @@ class App {
         // Initialize app after loading assets
         this.assets.load(function() {
             _this.init();
-            _this.renderer.setAnimationLoop(function() { _this.update(); });
+            _this.renderer.setAnimationLoop(function() { _this.loop(); });
         });
     }
 
@@ -45,7 +50,7 @@ class App {
         this.world.init(this.assets);
     }
 
-    update() {
+    loop() {
         // Update time factors
         var delta = this.clock.getDelta() * this.clock.scale;
         var alpha = this.physicsDeltaSum / this.physicsInterval; // Interpolation factor
@@ -54,7 +59,6 @@ class App {
         this.physicsDeltaSum += delta;
         if (this.physicsDeltaSum > this.physicsInterval) {
             this.physicsDeltaSum %= this.physicsInterval; // reset with remainder
-            this.updatePhysics(this.physicsInterval);
             alpha = 1; // Request new position from physics
         }
 
@@ -62,24 +66,22 @@ class App {
         this.renderDeltaSum += delta;
         if (this.renderDeltaSum > this.renderInterval || this.renderTickRate < 0 || alpha == 1) {
             this.renderDeltaSum %= this.renderInterval;
-            this.updateRender(delta, alpha);
+            this.update(delta, alpha, this.physicsInterval);
         }
     }
+    
+    update(delta, alpha, interval) {
+        // Begin FPS counter
+        this.stats.begin();
 
-    updatePhysics(interval) {
-        this.stats.begin(); // Begin FPS counter
-        // TODO: Run ray traces here
-    }
-
-    updateRender(delta, alpha) {
         // Set delta to target renderInterval
         if (this.renderTickRate > 0) delta = this.renderInterval;
 
         // Loop through all child objects
-        this.world.update(delta, alpha);
+        this.world.update(delta, alpha, interval);
 
         // Update controls
-        this.controls.update(delta, alpha);
+        this.controls.update(delta, alpha, interval);
 
         // Render new scene
         this.renderer.render(this.world, this.camera);
