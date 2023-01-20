@@ -1,14 +1,16 @@
-import { Euler, Raycaster, Vector3 } from 'three';
+import { Euler, Vector3 } from 'three';
 
 class Controls {
 	constructor(target, domElement) {
-		this.target = target;
 		this.domElement = domElement || document.body;
 		this.locked = false;
-		this.target.direction = new Euler(0, 0, 0, 'ZYX'); // z-up order
 		this.mouse = { old: new Vector3(), new: new Vector3() };
+		this.direction = new Euler(0, 0, 0, 'ZYX'); // z-up order
 		this.sensitivity = 1;
 		this.keys = {};
+
+		// Bind controls to target
+		this.bind(target);
 
 		// Connect mouse controls
 		this.connect();
@@ -16,17 +18,17 @@ class Controls {
 
 	update(delta, alpha, interval) {
 		if (this.isLooking()) {
-			// Update target rotation
-			this.target.direction.setFromQuaternion(this.target.quaternion);
-			this.target.direction.z -= this.mouse.new.x * 0.001 * this.sensitivity;
-			this.target.direction.x -= this.mouse.new.y * 0.001 * this.sensitivity;
+			// Update direction to mouse input
+			this.direction.setFromQuaternion(this.target.quaternion);
+			this.direction.z -= this.mouse.new.x * 0.001 * this.sensitivity;
+			this.direction.x -= this.mouse.new.y * 0.001 * this.sensitivity;
 			
 			// Lock vertical rotation
-			this.target.direction.x = Math.max(0, Math.min(Math.PI, this.target.direction.x));
+			this.direction.x = Math.max(0, Math.min(Math.PI, this.direction.x));
 	
 			// Apply target from Euler
-			this.target.quaternion.setFromEuler(this.target.direction);
-			this.target.direction.x = 0; // Normalize forward direction by looking down
+			this.target.quaternion.setFromEuler(this.direction);
+			this.direction.x = 0; // Normalize forward direction by looking down
 			this.mouse.new.set(0, 0, 0); // Reset movement delta
 		}
 	}
@@ -79,6 +81,11 @@ class Controls {
 		else {
 			this.locked = false;
 		}
+	}
+
+	bind(target) {
+		this.target = target;
+		this.target.controls = this; // Bind controls to target
 	}
 
 	connect() {

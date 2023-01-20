@@ -22,7 +22,6 @@ class App {
         this.controls = new Controls(this.player, document.body);
         this.world = new World();
         this.world.add(this.player);
-        this.player.bind(this.controls);
         this.camera = this.player.camera;
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;
@@ -77,12 +76,14 @@ class App {
 
         // Set delta to target renderInterval
         if (this.renderTickRate > 0) delta = this.renderInterval;
+        
+        // Update controls
+        this.controls.update(delta, alpha, interval);
+        
 
         // Loop through all child objects
         this.world.update(delta, alpha, interval);
 
-        // Update controls
-        this.controls.update(delta, alpha, interval);
 
         // Render new scene
         this.renderer.render(this.world, this.camera);
