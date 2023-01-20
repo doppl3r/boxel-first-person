@@ -34,19 +34,17 @@ class World extends Scene {
 
     update(delta, alpha, interval) {
         // Update physics when alpha = 1
-        if (alpha == 1) {
-            for (var i = 0; i < this.children.length; i++) {
-                var child = this.children[i];
-    
-                // Update 3D object to rigid body position
-                if (child?.body) {
-                    child.update(delta, alpha, interval);
-                }
-    
-                // Update animations
-                if (child.animation) {
-                    child.animation.update(delta);
-                }
+        for (var i = 0; i < this.children.length; i++) {
+            var child = this.children[i];
+
+            // Update 3D object to rigid body position
+            if (child?.body) {
+                child.update(delta, alpha, interval);
+            }
+
+            // Update animations
+            if (child.animation) {
+                child.animation.update(delta);
             }
         }
     }

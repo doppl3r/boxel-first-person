@@ -19,10 +19,11 @@ class App {
         this.stats = new Stats();
         this.assets = new Assets();
         this.player = new Player();
+        this.controls = new Controls(this.player, document.body);
         this.world = new World();
         this.world.add(this.player);
+        this.player.bind(this.controls);
         this.camera = this.player.camera;
-        this.controls = new Controls(this.camera, this.world, document.body);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
