@@ -13,7 +13,6 @@ class Body {
         this.velocity = new Vector3();
         this.position = new Vector3();
         this.positionPrev = new Vector3();
-        this.speed = { delta: 0, acceleration: 0.05 };
 		this.gravity = 9.8;
 		this.damping = 0.9;
         this.noclip = false;

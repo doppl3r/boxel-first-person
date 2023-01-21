@@ -76,14 +76,12 @@ class App {
 
         // Set delta to target renderInterval
         if (this.renderTickRate > 0) delta = this.renderInterval;
-        
+
         // Update controls
         this.controls.update(delta, alpha, interval);
-        
 
         // Loop through all child objects
         this.world.update(delta, alpha, interval);
-
 
         // Render new scene
         this.renderer.render(this.world, this.camera);

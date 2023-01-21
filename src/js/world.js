@@ -22,7 +22,7 @@ class World extends Scene {
 
         // Add test cube
         var model = assets.models.clone('grass-fairway');
-        model.position.set(1, 1, 1);
+        model.position.set(0, 0, 2);
         model.rotation.set(0, 0, Math.PI / 8);
         this.add(model);
 
