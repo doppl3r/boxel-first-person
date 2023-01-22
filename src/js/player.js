@@ -6,7 +6,7 @@ class Player extends Group {
         super();
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
         this.body = new Body();
-        this.body.position.set(0, -8, 4);
+        this.body.position.set(0, -8, this.body.radius);
         this.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
         this.force = new Vector3();
         this.vector = new Vector3();
@@ -45,7 +45,15 @@ class Player extends Group {
 
             // Update physical body from control input keys
             this.body.direction = this.controls.direction;
-            this.body.update(this.parent);
+
+            // Test position change
+            if (this.time == null) this.time = 0;
+            this.time += (interval * 0.1);
+            this.body.positionPrev.copy(this.body.position);
+            this.body.position.x = Math.sin(this.time * 5) * 5;
+            this.body.position.y = Math.cos(this.time * 5) * 5;
+
+            //this.body.update(this.parent);
             this.position.copy(this.body.positionPrev);
         }
         else {
