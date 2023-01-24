@@ -11,7 +11,7 @@ class App {
         this.clock = new Clock();
         this.clock.scale = 1;
         this.physicsDeltaSum = 0;
-        this.physicsTickRate = 10; // Calculations per second
+        this.physicsTickRate = 30; // Calculations per second
         this.physicsInterval = 1 / this.physicsTickRate;
         this.renderDeltaSum = 0;
         this.renderTickRate = -1; // Ex: 24 = 24fps, -1 = unlimited
@@ -59,6 +59,7 @@ class App {
         this.physicsDeltaSum += delta;
         if (this.physicsDeltaSum > this.physicsInterval) {
             this.physicsDeltaSum %= this.physicsInterval; // reset with remainder
+            this.updatePhysics(this.physicsInterval);
             alpha = 1; // Request new position from physics
         }
 
@@ -66,22 +67,24 @@ class App {
         this.renderDeltaSum += delta;
         if (this.renderDeltaSum > this.renderInterval || this.renderTickRate < 0 || alpha == 1) {
             this.renderDeltaSum %= this.renderInterval;
-            this.update(delta, alpha, this.physicsInterval);
+            this.updateRender(delta, alpha, this.physicsInterval);
         }
     }
-    
-    update(delta, alpha, interval) {
-        // Begin FPS counter
-        this.stats.begin();
 
+    updatePhysics(delta) {
+        this.stats.begin(); // Begin FPS counter
+        this.world.step(delta);
+    }
+    
+    updateRender(delta, alpha) {
         // Set delta to target renderInterval
         if (this.renderTickRate > 0) delta = this.renderInterval;
 
         // Update controls
-        this.controls.update(delta, alpha, interval);
+        this.controls.update(delta, alpha);
 
         // Loop through all child objects
-        this.world.update(delta, alpha, interval);
+        this.world.update(delta, alpha);
 
         // Render new scene
         this.renderer.render(this.world, this.camera);

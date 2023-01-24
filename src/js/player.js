@@ -14,7 +14,7 @@ class Player extends Group {
         this.add(this.camera);
     }
 
-    update(delta, alpha, interval) {
+    update(delta, alpha) {
         // Add controls to body
         if (alpha == 1) {
             if (this.controls) {
@@ -28,7 +28,7 @@ class Player extends Group {
                     if (this.body.noclip == true) this.force.z = this.acceleration;
                     else {
                         this.controls.keys['Space'] = false;
-                        this.force.z = this.acceleration * 0.05 * this.body.gravity;
+                        this.force.z = this.acceleration * this.body.gravity;
                     }
                 }
 
@@ -39,21 +39,14 @@ class Player extends Group {
                 this.force.x = this.vector.x;
                 this.force.y = this.vector.y;
 
+                console.log(this.force);
+
                 // Apply direction to velocity
                 this.body.applyImpulse(this.force);
             }
 
             // Update physical body from control input keys
             this.body.direction = this.controls.direction;
-
-            // Test position change
-            if (this.time == null) this.time = 0;
-            this.time += (interval * 0.1);
-            this.body.positionPrev.copy(this.body.position);
-            this.body.position.x = Math.sin(this.time * 5) * 5;
-            this.body.position.y = Math.cos(this.time * 5) * 5;
-
-            //this.body.update(this.parent);
             this.position.copy(this.body.positionPrev);
         }
         else {

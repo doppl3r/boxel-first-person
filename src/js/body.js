@@ -15,55 +15,70 @@ class Body {
         this.positionPrev = new Vector3();
 		this.gravity = 9.8;
 		this.damping = 0.9;
+		this.scalar = 1;
         this.noclip = false;
     }
 
-    update(objects) {
-		// Add gravity
-        if (this.noclip == false) {
-			this.velocity.z -= this.gravity * 0.005;
-		}
-		
-		// Apply movement damping
-		this.velocity.multiplyScalar(this.damping);
+    update(delta) {
+		if (this.world) {
+			// Correct delta with world tick rate
+			this.scalar = delta / this.world.tick;
 
-		// Update positions
-		this.positionPrev.copy(this.position); // Store old "next" position
-		this.position.add(this.velocity); // Store new "next" position
+			// Add gravity
+			if (this.noclip == false) {
+				this.velocity.z -= this.gravity * this.scalar * 0.005;
+			}
 
-		// Check collisions
-		if (this.noclip == false) {
-			var collisions = this.checkCollisions(objects);
-			
-			if (collisions['bottom']) {
-				this.velocity.z = 0;
-				this.position.z = collisions['bottom'].point.z + this.radius;
-			}
-			if (collisions['front']) {
-				var collision = collisions['front'];
-				var object = collision.object;
-				var normal = collision.face.normal.clone().transformDirection(object.matrixWorld);
-			}
-			else {
-				//console.log('pizza');
+			// Apply movement damping
+			this.velocity.multiplyScalar(Math.pow(this.damping, this.scalar));
+	
+			// Update positions
+			this.positionPrev.copy(this.position); // Store old "next" position
+			this.position.add(this.velocity); // Store new "next" position
+	
+			// Check collisions
+			if (this.noclip == false) {
+				var collisions = this.checkCollisions(this.world);
+				
+				if (collisions['bottom']) {
+					this.velocity.z = 0;
+					this.position.z = collisions['bottom'].point.z + this.radius;
+				}
+				if (collisions['front']) {
+					var collision = collisions['front'];
+					var object = collision.object;
+					var normal = collision.face.normal.clone().transformDirection(object.matrixWorld);
+				}
+				else {
+					//console.log('pizza');
+				}
 			}
 		}
     }
 
     applyImpulse(impulse) {
-        this.velocity.add(impulse);
+		if (this.world) {
+			// Convert impulse to Vector3 is needed
+			if (impulse.isVector3 != true) impulse = new Vector3().copy(impulse);
+			
+			// Correct delta with world tick rate
+			impulse.multiplyScalar(this.scalar);
+			this.velocity.add(impulse);
+		}
     }
 
     checkCollisions(objects) {
 		var contacts = {};
-		for (var i = 0; i < this.rays.length; i++) {
-			var ray = this.rays[i];
-			var direction = this.vector.copy(ray.direction).applyEuler(this.direction);
-			this.raycaster.set(this.position, direction);
-			var contact = this.raycaster.intersectObject(objects)[0];
-			if (contact) {
-				if (contact.distance < this.radius) {
-					contacts[ray.name] = contact;
+		if (this.direction) {
+			for (var i = 0; i < this.rays.length; i++) {
+				var ray = this.rays[i];
+				var direction = this.vector.copy(ray.direction).applyEuler(this.direction);
+				this.raycaster.set(this.position, direction);
+				var contact = this.raycaster.intersectObject(objects)[0];
+				if (contact) {
+					if (contact.distance < this.radius) {
+						contacts[ray.name] = contact;
+					}
 				}
 			}
 		}

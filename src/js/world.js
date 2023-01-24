@@ -4,6 +4,8 @@ class World extends Scene {
     constructor() {
         super();
         this.name = 'world';
+        this.bodies = [];
+        this.tick = 1 / 60; // Target interval
     }
 
     init(assets) {
@@ -32,14 +34,42 @@ class World extends Scene {
         this.add(hemisphere);
     }
 
-    update(delta, alpha, interval) {
+    add(object) {
+        if (object.body) this.addBody(object.body);
+        super.add(object);
+    }
+
+    addBody(body) {
+        body.index = this.bodies.length;
+        this.bodies.push(body);
+        body.world = this;
+    }
+
+    removeBody(body) {
+        body.world = null;
+
+        if (body.index > -1) {
+            this.bodies.splice(body.index, 1);
+            for (var i = 0; i !== this.bodies.length; i++) {
+                this.bodies[i].index = i;
+            }
+        }
+    }
+
+    step(delta) { // delta = interval
+        for (var i = 0; i < this.bodies.length; i++) {
+            this.bodies[i].update(delta);
+        }
+    }
+
+    update(delta, alpha) {
         // Update physics when alpha = 1
         for (var i = 0; i < this.children.length; i++) {
             var child = this.children[i];
 
             // Update 3D object to rigid body position
             if (child?.body) {
-                child.update(delta, alpha, interval);
+                child.update(delta, alpha);
             }
 
             // Update animations
