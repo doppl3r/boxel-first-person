@@ -39,8 +39,6 @@ class Player extends Group {
                 this.force.x = this.vector.x;
                 this.force.y = this.vector.y;
 
-                console.log(this.force);
-
                 // Apply direction to velocity
                 this.body.applyImpulse(this.force);
             }

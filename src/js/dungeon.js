@@ -1,6 +1,6 @@
 import { Scene, HemisphereLight } from 'three';
 
-class World extends Scene {
+class Dungeon extends Scene {
     constructor() {
         super();
         this.name = 'world';
@@ -80,4 +80,4 @@ class World extends Scene {
     }
 }
 
-export { World };
+export { Dungeon };
