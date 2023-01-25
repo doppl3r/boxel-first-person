@@ -1,5 +1,4 @@
 import { Clock, PCFSoftShadowMap, WebGLRenderer } from 'three';
-import { World } from 'cannon-es';
 import { Controls } from './controls';
 import { Dungeon } from './dungeon';
 import { Player } from './player';
@@ -21,7 +20,6 @@ class App {
         this.assets = new Assets();
         this.player = new Player();
         this.controls = new Controls(this.player, document.body);
-        this.world = new World();
         this.dungeon = new Dungeon();
         this.dungeon.add(this.player);
         this.camera = this.player.camera;
@@ -75,8 +73,7 @@ class App {
 
     updatePhysics(delta) {
         this.stats.begin(); // Begin FPS counter
-        this.dungeon.step(delta);
-        this.world.step(delta);
+        this.dungeon.updatePhysics(delta);
     }
     
     updateRender(delta, alpha) {
@@ -87,7 +84,7 @@ class App {
         this.controls.update(delta, alpha);
 
         // Loop through all child objects
-        this.dungeon.update(delta, alpha);
+        this.dungeon.updateRender(delta, alpha);
 
         // Render new scene
         this.renderer.render(this.dungeon, this.camera);

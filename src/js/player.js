@@ -1,16 +1,30 @@
 import { Group, PerspectiveCamera, Vector3 } from 'three';
-import { Body } from './body';
+import { Body, Sphere, Material } from 'cannon-es';
 
 class Player extends Group {
     constructor() {
         super();
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
-        this.body = new Body();
-        this.body.position.set(0, -8, this.body.radius);
+        this.position.set(0, -4, 4);
+        this.body = new Body({
+            allowSleep: true,
+            angularDamping: 0.9,
+			fixedRotation: false,
+			linearDamping: 0.05,
+			mass: 5,
+			material: new Material({ friction: -1, restitution: -1 }),
+			position: this.position,
+			shape: new Sphere(1), // Radius
+			sleepSpeedLimit: 0.5,
+			sleepTimeLimit: 0.1
+        });
+        this.body.addEventListener('sleep', function(e) { var body = e.target; body.fixedRotation = true; body.updateMassProperties(); });
+		this.body.addEventListener('wakeup', function(e) { var body = e.target; body.fixedRotation = false; body.updateMassProperties(); });
         this.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
         this.force = new Vector3();
         this.vector = new Vector3();
-        this.acceleration = 0.0625;
+        this.acceleration = 5;
+        this.speed = 5;
         this.add(this.camera);
     }
 
@@ -28,28 +42,36 @@ class Player extends Group {
                     if (this.body.noclip == true) this.force.z = this.acceleration;
                     else {
                         this.controls.keys['Space'] = false;
-                        this.force.z = this.acceleration * this.body.gravity;
+                        this.body.applyImpulse({ x: 0, y: 0, z: this.acceleration * this.body.mass });
                     }
                 }
 
-                // Clamp movement speed
-                this.vector.copy(this.force);
-                this.vector.z = 0;
-                this.vector.applyEuler(this.controls.direction).clampLength(-this.acceleration, this.acceleration);
-                this.force.x = this.vector.x;
-                this.force.y = this.vector.y;
+                // Apply directional velocity to body
+                if (this.controls.isMoving()) {
+                    this.body.angularDamping = 0.75;
+                    this.force.applyEuler(this.controls.direction).clampLength(-this.acceleration, this.acceleration);
+                    this.body.applyImpulse(this.force);
+                }
+                else {
+                    this.body.angularDamping = 1; // Grip walls
+                }
 
-                // Apply direction to velocity
-                this.body.applyImpulse(this.force);
+                // Clamp body velocity speed
+                if (this.body.velocity.length() > this.speed) {
+                    this.vector.copy(this.body.velocity);
+                    this.vector.clampLength(-this.speed, this.speed);
+                    this.body.velocity.x = this.vector.x;
+                    this.body.velocity.y = this.vector.y;
+                }
             }
-
+            
             // Update physical body from control input keys
             this.body.direction = this.controls.direction;
-            this.position.copy(this.body.positionPrev);
+            this.position.copy(this.body.previousPosition);
         }
         else {
             // Copy body position
-            this.position.lerpVectors(this.body.positionPrev, this.body.position, alpha);
+            this.position.lerpVectors(this.body.previousPosition, this.body.position, alpha);
         }
     }
 }

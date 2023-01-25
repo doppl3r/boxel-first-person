@@ -37,6 +37,9 @@ class Models {
         // Add mixer animations
         this.applyUserData(model);
 
+        // Add update function (for physics)
+        model.update = this.update;
+
         // Return new model object
         return model;
     }
@@ -71,6 +74,28 @@ class Models {
 
             // Start animation if looping
             if (loopType == LoopRepeat) model.animation.play();
+        }
+    }
+
+    update(delta, alpha) {
+        if (this.body) {
+            if (alpha == 1) {
+                // Set object position to previous body to capture missing frame
+                this.position.copy(this.body.previousPosition);
+                this.quaternion.copy(this.body.previousQuaternion);
+            }
+            else {
+                // Lerp rotation/position
+                this.body.position._x = this.body.position.x;
+                this.body.position._y = this.body.position.y;
+                this.body.position._z = this.body.position.z;
+                this.body.quaternion._x = this.body.quaternion.x;
+                this.body.quaternion._y = this.body.quaternion.y;
+                this.body.quaternion._z = this.body.quaternion.z;
+                this.body.quaternion._w = this.body.quaternion.w;
+                this.position.lerpVectors(this.body.previousPosition, this.body.position, alpha);
+                this.quaternion.slerpQuaternions(this.body.previousQuaternion, this.body.quaternion, alpha);
+            }
         }
     }
 }

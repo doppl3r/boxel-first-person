@@ -1,11 +1,14 @@
 import { Scene, HemisphereLight } from 'three';
+import { Body, Box, Material, Vec3, World } from 'cannon-es';
+import CannonDebugger from 'cannon-es-debugger';
 
 class Dungeon extends Scene {
     constructor() {
         super();
-        this.name = 'world';
-        this.bodies = [];
-        this.tick = 1 / 60; // Target interval
+        this.name = 'dungeon';
+        this.world = new World({ allowSleep: true, gravity: new Vec3(0, 0, -9.82) });
+        this.debugger = new CannonDebugger(this, this.world, { color: '#00ff00', scale: 1 });
+        this.debug = false;
     }
 
     init(assets) {
@@ -18,14 +21,28 @@ class Dungeon extends Scene {
                 var x = Math.floor(col - (cols / 2));
                 var y = Math.floor(row - (rows / 2));
                 model.position.set(x, y, 0);
+                model.body = new Body({
+                    mass: 0,
+                    shape: new Box(new Vec3(0.5, 0.5, 0.5)),
+                    material: new Material({ friction: 0.25, restitution: 0.05 }),
+                    position: model.position,
+                    quaternion: model.quaternion
+                });
                 this.add(model);
             }
         }
 
         // Add test cube
         var model = assets.models.clone('grass-fairway');
-        model.position.set(0, 0, 2);
+        model.position.set(0, 0, 1);
         model.rotation.set(0, 0, Math.PI / 8);
+        model.body = new Body({
+            mass: 1,
+            shape: new Box(new Vec3(0.5, 0.5, 0.5)),
+            material: new Material({ friction: 0.1, restitution: 0.05 }),
+            position: model.position,
+            quaternion: model.quaternion
+        });
         this.add(model);
 
         // Add basic environment light
@@ -35,40 +52,21 @@ class Dungeon extends Scene {
     }
 
     add(object) {
-        if (object.body) this.addBody(object.body);
+        if (object.body) this.world.addBody(object.body);
         super.add(object);
     }
 
-    addBody(body) {
-        body.index = this.bodies.length;
-        this.bodies.push(body);
-        body.world = this;
+    updatePhysics(delta) {
+        this.world.step(delta);
     }
 
-    removeBody(body) {
-        body.world = null;
-
-        if (body.index > -1) {
-            this.bodies.splice(body.index, 1);
-            for (var i = 0; i !== this.bodies.length; i++) {
-                this.bodies[i].index = i;
-            }
-        }
-    }
-
-    step(delta) { // delta = interval
-        for (var i = 0; i < this.bodies.length; i++) {
-            this.bodies[i].update(delta);
-        }
-    }
-
-    update(delta, alpha) {
+    updateRender(delta, alpha) {
         // Update physics when alpha = 1
         for (var i = 0; i < this.children.length; i++) {
             var child = this.children[i];
 
             // Update 3D object to rigid body position
-            if (child?.body) {
+            if (child.update) {
                 child.update(delta, alpha);
             }
 
@@ -77,6 +75,7 @@ class Dungeon extends Scene {
                 child.animation.update(delta);
             }
         }
+        if (this.debug) this.debugger.update();
     }
 }
 
