@@ -67,7 +67,7 @@ class App {
         this.renderDeltaSum += delta;
         if (this.renderDeltaSum > this.renderInterval || this.renderTickRate < 0 || alpha == 1) {
             this.renderDeltaSum %= this.renderInterval;
-            this.updateRender(delta, alpha, this.physicsInterval);
+            this.updateRender(delta, alpha);
         }
     }
 

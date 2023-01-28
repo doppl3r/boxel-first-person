@@ -16,19 +16,21 @@ class Controls {
 		this.connect();
 	}
 
-	update(delta, alpha, interval) {
+	update(delta, alpha) {
 		if (this.isLooking()) {
 			// Update direction to mouse input
 			this.direction.setFromQuaternion(this.target.quaternion);
-			this.direction.z -= this.mouse.new.x * 0.001 * this.sensitivity;
-			this.direction.x -= this.mouse.new.y * 0.001 * this.sensitivity;
+			this.direction.z -= this.mouse.new.x * this.sensitivity * 0.001;
+			this.direction.x -= this.mouse.new.y * this.sensitivity * 0.001;
 			
 			// Lock vertical rotation
 			this.direction.x = Math.max(0, Math.min(Math.PI, this.direction.x));
-	
+			
 			// Apply target from Euler
 			this.target.quaternion.setFromEuler(this.direction);
-			this.direction.x = 0; // Normalize forward direction by looking down
+
+			// Normalize horizontal forward direction
+			this.direction.x = 0;
 			this.mouse.new.set(0, 0, 0); // Reset movement delta
 		}
 	}
@@ -50,7 +52,7 @@ class Controls {
 	}
 
 	isLooking() {
-		return this.mouse.new.equals({ x: 0, y: 0 }) == false;		
+		return this.mouse.new.equals({ x: 0, y: 0, z: 0 }) == false;		
 	}
 
 	isMoving() {

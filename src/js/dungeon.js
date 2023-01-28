@@ -61,7 +61,7 @@ class Dungeon extends Scene {
     }
 
     updateRender(delta, alpha) {
-        // Update physics when alpha = 1
+        // Update physics
         for (var i = 0; i < this.children.length; i++) {
             var child = this.children[i];
 
