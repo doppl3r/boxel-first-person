@@ -1,4 +1,4 @@
-import { AnimationMixer, LoopOnce, LoopRepeat, Quaternion, Vector3 } from 'three';
+import { AnimationMixer, LoopOnce, LoopRepeat } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils';
 import json from '../json/models.json';
@@ -39,10 +39,6 @@ class Models {
 
         // Add physics interpolation function
         model.update = this.update;
-        model.positionPrev = new Vector3();
-        model.positionNext = new Vector3();
-        model.quaternionPrev = new Quaternion();
-        model.quaternionNext = new Quaternion();
 
         // Return new model object
         return model;
@@ -81,22 +77,17 @@ class Models {
         }
     }
 
-    update(delta, alpha, needsUpdate = false) {
-        if (this.body) {
-            if (needsUpdate == true) {
-                // TODO: Improve low FPS catchup logic (ex: 24fps and 30hz physics)
-            }
-            else {
-                // Store physics state before world ticks
-                this.positionPrev.copy(this.body.previousPosition);
-                this.positionNext.copy(this.body.position);
-                this.quaternionPrev.copy(this.body.previousQuaternion);
-                this.quaternionNext.copy(this.body.quaternion);
-            }
+    update(delta, alpha) {
+        if (this.body && this.body.mass > 0) {
+            // Convert CannonJS quaternion to threeJS quaternion
+            this.body.quaternion._x = this.body.quaternion.x;
+            this.body.quaternion._y = this.body.quaternion.y;
+            this.body.quaternion._z = this.body.quaternion.z;
+            this.body.quaternion._w = this.body.quaternion.w;
 
-            // Interpolate model position
-            this.position.lerpVectors(this.positionPrev, this.positionNext, alpha);
-            this.quaternion.slerpQuaternions(this.quaternionPrev, this.quaternionNext, alpha);
+            // Interpolate position and rotation (quaternion)
+            this.position.lerpVectors(this.body['previousPosition'], this.body['position'], alpha);
+            this.quaternion.slerpQuaternions(this.body['previousQuaternion'], this.body['quaternion'], alpha);
         }
     }
 }

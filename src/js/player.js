@@ -24,59 +24,49 @@ class Player extends Group {
         this.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
         this.force = new Vector3();
         this.vector = new Vector3();
-        this.positionPrev = new Vector3();
-        this.positionNext = new Vector3();
         this.acceleration = 10;
         this.speed = 5;
         this.add(this.camera);
     }
 
-    update(delta, alpha, needsUpdate = false) {
+    update(delta, alpha) {
         // Add controls to body
-        if (needsUpdate == true) {
-            if (this.controls) {
-                this.force.set(0, 0, 0); // Reset force
-                if (this.controls.keys['KeyW'] == true) this.force.y = this.acceleration;
-                if (this.controls.keys['KeyS'] == true) this.force.y = -this.acceleration;
-                if (this.controls.keys['KeyD'] == true) this.force.x = this.acceleration;
-                if (this.controls.keys['KeyA'] == true) this.force.x = -this.acceleration;
-                if (this.controls.keys['ControlLeft'] == true) { if (this.body.noclip == true) this.force.z = -this.acceleration; }
-                if (this.controls.keys['Space'] == true) {
-                    if (this.body.noclip == true) this.force.z = this.acceleration;
-                    else {
-                        this.controls.keys['Space'] = false;
-                        this.body.applyImpulse({ x: 0, y: 0, z: 5 * this.body.mass });
-                    }
-                }
-    
-                // Apply directional velocity to body
-                if (this.controls.isMoving()) {
-                    this.body.angularDamping = 0.75;
-                    this.force.applyEuler(this.controls.direction).clampLength(-this.acceleration, this.acceleration);
-                    this.body.applyImpulse(this.force);
-
-                    // Clamp body velocity speed
-                    if (this.body.velocity.length() > this.speed) {
-                        this.vector.copy(this.body.velocity);
-                        this.vector.clampLength(-this.speed, this.speed);
-                        this.body.velocity.x = this.vector.x;
-                        this.body.velocity.y = this.vector.y;
-                    }
-                }
+        if (this.controls) {
+            this.force.set(0, 0, 0); // Reset force
+            if (this.controls.keys['KeyW'] == true) this.force.y = this.acceleration;
+            if (this.controls.keys['KeyS'] == true) this.force.y = -this.acceleration;
+            if (this.controls.keys['KeyD'] == true) this.force.x = this.acceleration;
+            if (this.controls.keys['KeyA'] == true) this.force.x = -this.acceleration;
+            if (this.controls.keys['ControlLeft'] == true) { if (this.body.noclip == true) this.force.z = -this.acceleration; }
+            if (this.controls.keys['Space'] == true) {
+                if (this.body.noclip == true) this.force.z = this.acceleration;
                 else {
-                    this.body.angularDamping = 1; // Grip walls
+                    this.controls.keys['Space'] = false;
+                    this.body.applyImpulse({ x: 0, y: 0, z: 5 * this.body.mass });
                 }
-
             }
-            // TODO: Improve low FPS catchup logic (ex: 24fps and 30hz physics)
-        }
-        else {
-            this.positionPrev.copy(this.body.previousPosition);
-            this.positionNext.copy(this.body.position);
+
+            // Apply directional velocity to body
+            if (this.controls.isMoving()) {
+                this.body.angularDamping = 0.75;
+                this.force.applyEuler(this.controls.direction).clampLength(-this.acceleration, this.acceleration);
+                this.body.applyImpulse(this.force);
+
+                // Clamp body velocity speed
+                if (this.body.velocity.length() > this.speed) {
+                    this.vector.copy(this.body.velocity);
+                    this.vector.clampLength(-this.speed, this.speed);
+                    this.body.velocity.x = this.vector.x;
+                    this.body.velocity.y = this.vector.y;
+                }
+            }
+            else {
+                this.body.angularDamping = 1; // Grip walls
+            }
         }
         
         // Interpolate model position
-        this.position.lerpVectors(this.positionPrev, this.positionNext, alpha);
+        this.position.lerpVectors(this.body.previousPosition, this.body.position, alpha);
     }
 }
 
