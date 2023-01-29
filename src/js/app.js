@@ -54,20 +54,22 @@ class App {
         // Update time factors
         var delta = this.clock.getDelta() * this.clock.scale;
         var alpha = this.physicsDeltaSum / this.physicsInterval; // Interpolation factor
+        var needsUpdate = false;
         
         // Update engine on a lessor interval (improves performance)
         this.physicsDeltaSum += delta;
         if (this.physicsDeltaSum > this.physicsInterval) {
+            alpha = (this.physicsDeltaSum - delta) / this.physicsInterval; // Request new position from physics
             this.physicsDeltaSum %= this.physicsInterval; // reset with remainder
             this.updatePhysics(this.physicsInterval);
-            alpha = 1; // Request new position from physics
+            needsUpdate = true;
         }
 
         // Refresh renderer on a higher (or unlimited) interval
         this.renderDeltaSum += delta;
-        if (this.renderDeltaSum > this.renderInterval || this.renderTickRate < 0 || alpha == 1) {
+        if (this.renderDeltaSum > this.renderInterval || this.renderTickRate < 0) {
             this.renderDeltaSum %= this.renderInterval;
-            this.updateRender(delta, alpha);
+            this.updateRender(delta, alpha, needsUpdate);
         }
     }
 
@@ -76,7 +78,7 @@ class App {
         this.dungeon.updatePhysics(delta);
     }
     
-    updateRender(delta, alpha) {
+    updateRender(delta, alpha, needsUpdate) {
         // Set delta to target renderInterval
         if (this.renderTickRate > 0) delta = this.renderInterval;
 
@@ -84,7 +86,7 @@ class App {
         this.controls.update(delta, alpha);
 
         // Loop through all child objects
-        this.dungeon.updateRender(delta, alpha);
+        this.dungeon.updateRender(delta, alpha, needsUpdate);
 
         // Render new scene
         this.renderer.render(this.dungeon, this.camera);

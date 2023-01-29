@@ -5,7 +5,8 @@ class Player extends Group {
     constructor() {
         super();
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
-        this.position.set(-3, 0, 1.5);
+        this.up.set(0, 0, 1); // Z-up
+        this.position.set(0, -3, 1.5);
         this.body = new Body({
             allowSleep: true,
             angularDamping: 1,
@@ -20,23 +21,20 @@ class Player extends Group {
         });
         this.body.addEventListener('sleep', function(e) { var body = e.target; body.fixedRotation = true; body.updateMassProperties(); });
 		this.body.addEventListener('wakeup', function(e) { var body = e.target; body.fixedRotation = false; body.updateMassProperties(); });
-        this.rotation.set(Math.PI / 2, -Math.PI / 2, 0); // Look at horizon
+        this.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
         this.force = new Vector3();
-        this.vector = new Vector3(); 
+        this.vector = new Vector3();
+        this.positionPrev = new Vector3();
+        this.positionNext = new Vector3();
         this.acceleration = 10;
         this.speed = 5;
         this.add(this.camera);
     }
 
-    update(delta, alpha) {
+    update(delta, alpha, needsUpdate = false) {
         // Add controls to body
-        
-        if (alpha == 1) {
+        if (needsUpdate == true) {
             if (this.controls) {
-                if (this.time == null) this.time = 0;
-                this.time += 0.04;
-                this.body.applyImpulse({ x: Math.sin(this.time) * 20, y: Math.cos(this.time) * 20, z: 0 });
-
                 this.force.set(0, 0, 0); // Reset force
                 if (this.controls.keys['KeyW'] == true) this.force.y = this.acceleration;
                 if (this.controls.keys['KeyS'] == true) this.force.y = -this.acceleration;
@@ -56,25 +54,29 @@ class Player extends Group {
                     this.body.angularDamping = 0.75;
                     this.force.applyEuler(this.controls.direction).clampLength(-this.acceleration, this.acceleration);
                     this.body.applyImpulse(this.force);
+
+                    // Clamp body velocity speed
+                    if (this.body.velocity.length() > this.speed) {
+                        this.vector.copy(this.body.velocity);
+                        this.vector.clampLength(-this.speed, this.speed);
+                        this.body.velocity.x = this.vector.x;
+                        this.body.velocity.y = this.vector.y;
+                    }
                 }
                 else {
                     this.body.angularDamping = 1; // Grip walls
                 }
 
-                // Clamp body velocity speed
-                if (this.body.velocity.length() > this.speed) {
-                    this.vector.copy(this.body.velocity);
-                    this.vector.clampLength(-this.speed, this.speed);
-                    this.body.velocity.x = this.vector.x;
-                    this.body.velocity.y = this.vector.y;
-                }
             }
-            this.position.copy(this.body.previousPosition);
+            // TODO: Improve low FPS catchup logic (ex: 24fps and 30hz physics)
         }
         else {
-            // Copy body position
-            this.position.lerpVectors(this.body.previousPosition, this.body.position, alpha);
+            this.positionPrev.copy(this.body.previousPosition);
+            this.positionNext.copy(this.body.position);
         }
+        
+        // Interpolate model position
+        this.position.lerpVectors(this.positionPrev, this.positionNext, alpha);
     }
 }
 

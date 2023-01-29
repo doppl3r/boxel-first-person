@@ -60,14 +60,14 @@ class Dungeon extends Scene {
         this.world.step(delta);
     }
 
-    updateRender(delta, alpha) {
+    updateRender(delta, alpha, needsUpdate) {
         // Update physics
         for (var i = 0; i < this.children.length; i++) {
             var child = this.children[i];
 
             // Update 3D object to rigid body position
             if (child.update) {
-                child.update(delta, alpha);
+                child.update(delta, alpha, needsUpdate);
             }
 
             // Update animations
