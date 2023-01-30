@@ -5,7 +5,10 @@ class Player extends Group {
     constructor() {
         super();
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
-        this.up.set(0, 0, 1); // Z-up
+        this.camera.up.set(0, 0, 1);
+        this.camera.rotation.set(Math.PI / 2, 0, 0);
+        this.height = 1;
+        this.radius = 0.5;
         this.position.set(0, -3, 1.5);
         this.body = new Body({
             allowSleep: true,
@@ -15,21 +18,30 @@ class Player extends Group {
 			mass: 5,
 			material: new Material({ friction: -1, restitution: -1 }),
 			position: this.position,
-			shape: new Sphere(1), // Radius
+			shape: new Sphere(this.radius), // Radius
 			sleepSpeedLimit: 0.5,
 			sleepTimeLimit: 0.1
         });
         this.body.addEventListener('sleep', function(e) { var body = e.target; body.fixedRotation = true; body.updateMassProperties(); });
 		this.body.addEventListener('wakeup', function(e) { var body = e.target; body.fixedRotation = false; body.updateMassProperties(); });
-        this.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
+        this.camera.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
         this.force = new Vector3();
         this.vector = new Vector3();
         this.acceleration = 10;
         this.speed = 5;
-        this.add(this.camera);
     }
 
     update(delta, alpha) {
+        // Interpolate model position
+        this.position.lerpVectors(this.body.previousPosition, this.body.position, alpha);
+
+        // Reposition camera to body position and height
+        this.camera.quaternion.copy(this.controls.quaternion);
+        this.camera.position.copy(this.position);
+        this.camera.position.z += this.height;
+    }
+
+    updatePhysics(delta, alpha) {
         // Add controls to body
         if (this.controls) {
             this.force.set(0, 0, 0); // Reset force
@@ -61,12 +73,9 @@ class Player extends Group {
                 }
             }
             else {
-                this.body.angularDamping = 1; // Grip walls
+                this.body.angularDamping = 1; // Grip rotation
             }
         }
-        
-        // Interpolate model position
-        this.position.lerpVectors(this.body.previousPosition, this.body.position, alpha);
     }
 }
 

@@ -56,12 +56,8 @@ class Dungeon extends Scene {
         super.add(object);
     }
 
-    updatePhysics(delta) {
-        this.world.step(delta);
-    }
-
     updateRender(delta, alpha) {
-        // Update physics
+        // Update children 3D objects
         for (var i = 0; i < this.children.length; i++) {
             var child = this.children[i];
 
@@ -75,6 +71,21 @@ class Dungeon extends Scene {
                 child.animation.update(delta);
             }
         }
+    }
+
+    updatePhysics(delta, alpha) {
+        // Update children physics
+        for (var i = 0; i < this.children.length; i++) {
+            var child = this.children[i];
+
+            // Update 3D object physics
+            if (child.updatePhysics) {
+                child.updatePhysics(delta, alpha);
+            }
+        }
+
+        // Step world
+        this.world.step(delta);
         if (this.debug) this.debugger.update();
     }
 }

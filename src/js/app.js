@@ -55,7 +55,7 @@ class App {
         var delta = this.clock.getDelta() * this.clock.scale;
         var alpha = this.physicsDeltaSum / this.physicsInterval; // Interpolation factor
 
-        // Refresh renderer on a higher (or unlimited) interval
+        // Refresh renderer on a higher interval
         this.renderDeltaSum += delta;
         if (this.renderDeltaSum > this.renderInterval) {
             this.renderDeltaSum %= this.renderInterval;
@@ -67,13 +67,8 @@ class App {
         if (this.physicsDeltaSum > this.physicsInterval) {
             alpha = (this.physicsDeltaSum - delta) / this.physicsInterval; // Request new position from physics
             this.physicsDeltaSum %= this.physicsInterval; // reset with remainder
-            this.updatePhysics(this.physicsInterval);
+            this.updatePhysics(this.physicsInterval, alpha);
         }
-    }
-
-    updatePhysics(delta) {
-        this.stats.begin(); // Begin FPS counter
-        this.dungeon.updatePhysics(delta);
     }
     
     updateRender(delta, alpha) {
@@ -89,6 +84,11 @@ class App {
         // Render new scene
         this.renderer.render(this.dungeon, this.camera);
         this.stats.end(); // End FPS counter
+    }
+
+    updatePhysics(delta, alpha) {
+        this.stats.begin(); // Begin FPS counter
+        this.dungeon.updatePhysics(delta, alpha);
     }
 
     resizeWindow(e) {

@@ -1,4 +1,4 @@
-import { Euler, Vector3 } from 'three';
+import { Euler, Quaternion, Vector3 } from 'three';
 
 class Controls {
 	constructor(target, domElement) {
@@ -6,6 +6,7 @@ class Controls {
 		this.locked = false;
 		this.mouse = { old: new Vector3(), new: new Vector3() };
 		this.direction = new Euler(0, 0, 0, 'ZYX'); // z-up order
+		this.quaternion = new Quaternion();
 		this.sensitivity = 1;
 		this.keys = {};
 
@@ -19,7 +20,7 @@ class Controls {
 	update(delta, alpha) {
 		if (this.isLooking()) {
 			// Update direction to mouse input
-			this.direction.setFromQuaternion(this.target.quaternion);
+			this.direction.setFromQuaternion(this.quaternion);
 			this.direction.z -= this.mouse.new.x * this.sensitivity * 0.001;
 			this.direction.x -= this.mouse.new.y * this.sensitivity * 0.001;
 			
@@ -27,7 +28,7 @@ class Controls {
 			this.direction.x = Math.max(0, Math.min(Math.PI, this.direction.x));
 			
 			// Apply target from Euler
-			this.target.quaternion.setFromEuler(this.direction);
+			this.quaternion.setFromEuler(this.direction);
 
 			// Normalize horizontal forward direction
 			this.direction.x = 0;
@@ -88,6 +89,7 @@ class Controls {
 	bind(target) {
 		this.target = target;
 		this.target.controls = this; // Bind controls to target
+		if (this.target.camera) this.quaternion.copy(this.target.camera.quaternion);
 	}
 
 	connect() {
