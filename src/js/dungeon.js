@@ -1,17 +1,22 @@
 import { Scene, HemisphereLight } from 'three';
 import { Body, Box, Material, Vec3, World } from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
+import { Background } from './background.js';
 
 class Dungeon extends Scene {
     constructor() {
         super();
-        this.name = 'dungeon';
+        this.name = 'Dungeon';
+        this.background = new Background();
         this.world = new World({ allowSleep: true, gravity: new Vec3(0, 0, -9.82) });
         this.debugger = new CannonDebugger(this, this.world, { color: '#00ff00', scale: 1 });
         this.debug = false;
     }
 
     init(assets) {
+        // Add background
+        this.add(this.background);
+
         // Add temporary floor for testing
         var rows = 16;
         var cols = 16;

@@ -4,6 +4,7 @@ import { Body, Sphere, Material } from 'cannon-es';
 class Player extends Group {
     constructor() {
         super();
+        this.name = 'Player';
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
         this.camera.up.set(0, 0, 1);
         this.camera.rotation.set(Math.PI / 2, 0, 0);
