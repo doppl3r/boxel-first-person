@@ -6,8 +6,8 @@ class Background extends Mesh {
         this.name = 'Background';
         this.radius = 1;
         this.up.set(0, 0, 1);
-        this.scale.set(10, 10, 10);
-        this.geometry = new SphereGeometry(this.radius, 8, 8);
+        this.scale.set(20, 20, 20);
+        this.geometry = new SphereGeometry(this.radius, 16, 16);
         this.geometry.computeBoundingBox();
         this.material = new ShaderMaterial({
             uniforms: {
@@ -15,12 +15,11 @@ class Background extends Mesh {
                 bottom: { value: new Color("#ffffff") },
                 min: { value: this.geometry.boundingBox.min },
                 max: { value: this.geometry.boundingBox.max },
-                scale: { value: 0.1 }
+                scale: { value: 0.0625 }
             },
             vertexShader: `
                 uniform vec3 min;
                 uniform vec3 max;
-                uniform float scale;
                 varying vec2 vUv;
                 void main() {
                     vUv.y = (position.y - min.y) / (max.y - min.y);
@@ -30,9 +29,10 @@ class Background extends Mesh {
             fragmentShader: `
                 uniform vec3 bottom;
                 uniform vec3 top;
+                uniform float scale;
                 varying vec2 vUv;
                 void main() {
-                    gl_FragColor = vec4(mix(bottom, top, vUv.y), 1.0);
+                    gl_FragColor = vec4(mix(bottom, top, smoothstep(0.5 - scale, 0.5 + scale, vUv.y)), 1.0);
                 }
             `,
             side: BackSide
@@ -46,6 +46,10 @@ class Background extends Mesh {
         if (this.target) {
             this.position.copy(this.target.position);
         }
+    }
+
+    bind(target) {
+        this.target = target;
     }
 }
 
