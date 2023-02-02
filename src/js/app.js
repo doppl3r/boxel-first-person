@@ -1,4 +1,4 @@
-import { Clock, PCFSoftShadowMap, WebGLRenderer } from 'three';
+import { Clock, PCFSoftShadowMap, PerspectiveCamera, WebGLRenderer } from 'three';
 import { Controls } from './controls';
 import { Dungeon } from './dungeon';
 import { Player } from './player';
@@ -19,10 +19,9 @@ class App {
         this.stats = new Stats();
         this.assets = new Assets();
         this.player = new Player();
-        this.controls = new Controls(this.player, document.body);
-        this.dungeon = new Dungeon();
-        this.dungeon.add(this.player);
-        this.camera = this.player.camera;
+        this.controls = new Controls();
+        this.scene = new Dungeon();
+        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
@@ -47,7 +46,11 @@ class App {
     }
 
     init() {
-        this.dungeon.init(this.assets);
+        this.scene.init(this.assets);
+        this.scene.add(this.player);
+        this.camera = this.player.camera;
+        this.controls.connect(document.body);
+        this.controls.bind(this.player);
     }
 
     loop() {
@@ -79,16 +82,16 @@ class App {
         this.controls.update(delta, alpha);
 
         // Loop through all child objects
-        this.dungeon.updateRender(delta, alpha);
+        this.scene.updateRender(delta, alpha);
 
         // Render new scene
-        this.renderer.render(this.dungeon, this.camera);
+        this.renderer.render(this.scene, this.camera);
         this.stats.end(); // End FPS counter
     }
 
     updatePhysics(delta, alpha) {
         this.stats.begin(); // Begin FPS counter
-        this.dungeon.updatePhysics(delta, alpha);
+        this.scene.updatePhysics(delta, alpha);
     }
 
     resizeWindow(e) {

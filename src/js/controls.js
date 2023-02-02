@@ -1,20 +1,13 @@
 import { Euler, Quaternion, Vector3 } from 'three';
 
 class Controls {
-	constructor(target, domElement) {
-		this.domElement = domElement || document.body;
+	constructor() {
 		this.locked = false;
 		this.mouse = { old: new Vector3(), new: new Vector3() };
 		this.direction = new Euler(0, 0, 0, 'ZYX'); // z-up order
 		this.quaternion = new Quaternion();
 		this.sensitivity = 1;
 		this.keys = {};
-
-		// Bind controls to target
-		this.bind(target);
-
-		// Connect mouse controls
-		this.connect();
 	}
 
 	update(delta, alpha) {
@@ -87,13 +80,16 @@ class Controls {
 	}
 
 	bind(target) {
+		// Bind target to an Object3D
 		this.target = target;
 		this.target.controls = this; // Bind controls to target
 		if (this.target.camera) this.quaternion.copy(this.target.camera.quaternion);
 	}
 
-	connect() {
+	connect(domElement) {
+		// Add event listener
 		var _this = this;
+		this.domElement = domElement || document.body;
 		this.domElement.ownerDocument.addEventListener('mousemove', function(e) { _this.onMouseMove(e); });
 		this.domElement.ownerDocument.addEventListener('pointerlockchange', function(e) { _this.onPointerlockChange(e); });
 		this.domElement.ownerDocument.addEventListener('keyup', function(e) { _this.onKeyUp(e); });

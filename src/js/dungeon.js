@@ -1,4 +1,4 @@
-import { Scene, HemisphereLight } from 'three';
+import { HemisphereLight, Scene } from 'three';
 import { Body, Box, Material, Vec3, World } from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
 import { Background } from './background.js';
