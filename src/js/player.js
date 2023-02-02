@@ -1,4 +1,4 @@
-import { Group, PerspectiveCamera, Vector3 } from 'three';
+import { Group, PerspectiveCamera, Raycaster, Vector3 } from 'three';
 import { Body, Sphere, Material } from 'cannon-es';
 
 class Player extends Group {
@@ -8,9 +8,9 @@ class Player extends Group {
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
         this.camera.up.set(0, 0, 1);
         this.camera.rotation.set(Math.PI / 2, 0, 0);
+        this.position.set(0, -3, 1.5);
         this.height = 1;
         this.radius = 0.5;
-        this.position.set(0, -3, 1.5);
         this.body = new Body({
             allowSleep: true,
             angularDamping: 1,
@@ -26,6 +26,7 @@ class Player extends Group {
         this.body.addEventListener('sleep', function(e) { var body = e.target; body.fixedRotation = true; body.updateMassProperties(); });
 		this.body.addEventListener('wakeup', function(e) { var body = e.target; body.fixedRotation = false; body.updateMassProperties(); });
         this.camera.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
+        this.raycaster = new Raycaster(this.position, this.camera.up.negate(), 0, 10);
         this.force = new Vector3();
         this.vector = new Vector3();
         this.acceleration = 10;
@@ -55,7 +56,9 @@ class Player extends Group {
                 if (this.body.noclip == true) this.force.z = this.acceleration;
                 else {
                     this.controls.keys['Space'] = false;
-                    this.body.applyImpulse({ x: 0, y: 0, z: 5 * this.body.mass });
+                    if (this.isGrounded()) {
+                        this.body.applyImpulse({ x: 0, y: 0, z: 5 * this.body.mass });
+                    }
                 }
             }
 
@@ -77,6 +80,30 @@ class Player extends Group {
                 this.body.angularDamping = 1; // Grip rotation
             }
         }
+    }
+
+    isGrounded() {
+        var grounded = false;
+
+        // Update ray position and cast ray
+        this.raycaster.ray.origin.copy(this.body.position);
+        var contact = this.raycaster.intersectObject(this.parent)[0];
+        
+        // Check if contact exists
+        if (contact) {
+            var object = contact.object;
+            var radius = this.radius;
+
+            // Search ancestors for physical body
+            if (contact.distance < radius * 1.25) {
+                object.traverseAncestors(function(obj) {
+                    if (obj.body) {
+                        grounded = true;
+                    }
+                });
+            };
+        }
+        return grounded;
     }
 }
 
