@@ -27,10 +27,10 @@ class Controls {
 			// Lock vertical rotation
 			this.direction.x = Math.max(0, Math.min(Math.PI, this.direction.x));
 			
-			// Apply target from Euler
+			// Update quaternion from Euler
 			this.quaternion.setFromEuler(this.direction);
 
-			// Normalize horizontal forward direction
+			// Set movement direction parallel to the ground
 			this.direction.x = 0;
 			this.mouse.new.set(0, 0, 0); // Reset movement delta
 		}
