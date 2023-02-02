@@ -15,7 +15,7 @@ class Background extends Mesh {
                 bottom: { value: new Color("#ffffff") },
                 min: { value: this.geometry.boundingBox.min },
                 max: { value: this.geometry.boundingBox.max },
-                scale: { value: 0.0625 }
+                scale: { value: 0.125 }
             },
             vertexShader: `
                 uniform vec3 min;
@@ -32,7 +32,7 @@ class Background extends Mesh {
                 uniform float scale;
                 varying vec2 vUv;
                 void main() {
-                    gl_FragColor = vec4(mix(bottom, top, smoothstep(0.5 - scale, 0.5 + scale, vUv.y)), 1.0);
+                    gl_FragColor = vec4(mix(bottom, top, smoothstep(0.5 - (scale / 2.0), 0.5 + (scale / 2.0), vUv.y)), 1.0);
                 }
             `,
             side: BackSide
