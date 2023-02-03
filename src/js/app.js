@@ -1,7 +1,6 @@
 import { Clock, PCFSoftShadowMap, PerspectiveCamera, WebGLRenderer } from 'three';
 import { Controls } from './controls';
 import { Dungeon } from './dungeon';
-import { Player } from './player';
 import { Assets } from './assets';
 import Stats from './stats.js';
 
@@ -18,7 +17,6 @@ class App {
         this.renderInterval = 1 / this.renderTickRate;
         this.stats = new Stats();
         this.assets = new Assets();
-        this.player = new Player();
         this.controls = new Controls();
         this.scene = new Dungeon();
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
@@ -46,11 +44,7 @@ class App {
     }
 
     init() {
-        this.scene.init(this.assets);
-        this.scene.add(this.player);
-        this.camera = this.player.camera;
-        this.controls.connect(document.body);
-        this.controls.bind(this.player);
+        this.scene.init(this);
     }
 
     loop() {
@@ -119,4 +113,6 @@ class App {
         else this.pause(this.play);
     }
 }
+
+// Expose app to window for debugging
 window.app = new App();

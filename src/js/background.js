@@ -5,8 +5,6 @@ class Background extends Mesh {
         super();
         this.name = 'Background';
         this.radius = 1;
-        this.up.set(0, 0, 1);
-        this.scale.set(20, 20, 20);
         this.geometry = new SphereGeometry(this.radius, 16, 16);
         this.geometry.computeBoundingBox();
         this.material = new ShaderMaterial({

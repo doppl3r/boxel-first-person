@@ -1,20 +1,33 @@
-import { HemisphereLight, Scene } from 'three';
+import { Color, Fog, HemisphereLight, Scene } from 'three';
 import { Body, Box, Material, Vec3, World } from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
 import { Background } from './background.js';
+import { Player } from './player';
 
 class Dungeon extends Scene {
     constructor() {
         super();
         this.name = 'Dungeon';
+        this.player = new Player();
         this.background = new Background();
+        this.fog = new Fog(new Color('#ffffff'), 50, 100);
         this.world = new World({ allowSleep: true, gravity: new Vec3(0, 0, -9.82) });
         this.debugger = new CannonDebugger(this, this.world, { color: '#00ff00', scale: 1 });
         this.debug = false;
     }
 
-    init(assets) {
-        // Add background
+    init(app) {
+        // Add player and assign app camera to player camera
+        this.add(this.player);
+        app.camera = this.player.camera;
+
+        // Add controls
+        app.controls.connect(document.body);
+        app.controls.bind(this.player);
+
+        // Add background and bind to player position
+        this.background.scale.multiplyScalar(this.player.camera.far * 0.9);
+        this.background.bind(this.player);
         this.add(this.background);
 
         // Add temporary floor for testing
@@ -22,7 +35,7 @@ class Dungeon extends Scene {
         var cols = 16;
         for (var col = 0; col < cols; col++) {
             for (var row = 0; row < rows; row++) {
-                var model = assets.models.clone('grass-fairway');
+                var model = app.assets.models.clone('grass-fairway');
                 var x = Math.floor(col - (cols / 2));
                 var y = Math.floor(row - (rows / 2));
                 model.position.set(x, y, 0);
@@ -38,7 +51,7 @@ class Dungeon extends Scene {
         }
 
         // Add test cube
-        var model = assets.models.clone('grass-fairway');
+        var model = app.assets.models.clone('grass-fairway');
         model.position.set(0, 0, 1);
         model.rotation.set(0, 0, Math.PI / 8);
         model.body = new Body({
