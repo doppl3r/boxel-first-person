@@ -1,6 +1,6 @@
 import { Clock, PCFSoftShadowMap, PerspectiveCamera, WebGLRenderer } from 'three';
 import { Controls } from './controls';
-import { Dungeon } from './dungeon';
+import { SceneDungeon } from './scene-dungeon';
 import { Assets } from './assets';
 import Stats from './stats.js';
 
@@ -18,7 +18,7 @@ class App {
         this.stats = new Stats();
         this.assets = new Assets();
         this.controls = new Controls();
-        this.scene = new Dungeon();
+        this.scene = new SceneDungeon();
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;
@@ -30,7 +30,6 @@ class App {
         
         // Add event listeners
         document.addEventListener('visibilitychange', function(e) { _this.visibilityChange(); });
-        document.addEventListener('click', function () { _this.controls.lock(); });
         window.addEventListener('resize', function(e) { _this.resizeWindow(e); });
 
         // Resize window

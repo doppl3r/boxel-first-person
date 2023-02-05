@@ -4,7 +4,7 @@ import CannonDebugger from 'cannon-es-debugger';
 import { Background } from './background.js';
 import { Player } from './player';
 
-class Dungeon extends Scene {
+class SceneDungeon extends Scene {
     constructor() {
         super();
         this.name = 'Dungeon';
@@ -108,4 +108,4 @@ class Dungeon extends Scene {
     }
 }
 
-export { Dungeon };
+export { SceneDungeon };

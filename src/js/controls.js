@@ -29,7 +29,11 @@ class Controls {
 		}
 	}
 
-	onMouseMove(e) {
+	mouseDown(e) {
+		this.lock();
+	}
+
+	mouseMove(e) {
 		// Cancel movement if element is not locked
 		if (this.locked == false) { return };
 
@@ -43,6 +47,10 @@ class Controls {
 		if (Math.abs(e.movementX) > window.innerWidth / 3 || Math.abs(e.movementY) > window.innerHeight / 3) {
 			this.mouse.new.copy(this.mouse.old);
 		}
+	}
+
+	mouseUp(e) {
+		
 	}
 
 	isLooking() {
@@ -63,10 +71,13 @@ class Controls {
 	}
 
 	lock() {
-		this.domElement.requestPointerLock();
+		if (this.locked != true) {
+			this.domElement.requestPointerLock();
+		}
 	}
 	
 	unlock() {
+		this.locked = false;
 		this.domElement.ownerDocument.exitPointerLock();
 	}
 
@@ -90,17 +101,21 @@ class Controls {
 		// Add event listener
 		var _this = this;
 		this.domElement = domElement || document.body;
-		this.domElement.ownerDocument.addEventListener('mousemove', function(e) { _this.onMouseMove(e); });
-		this.domElement.ownerDocument.addEventListener('pointerlockchange', function(e) { _this.onPointerlockChange(e); });
-		this.domElement.ownerDocument.addEventListener('keyup', function(e) { _this.onKeyUp(e); });
-		this.domElement.ownerDocument.addEventListener('keydown', function(e) { _this.onKeyDown(e); });
+		this.domElement.ownerDocument.addEventListener('mousedown', function (e) { _this.mouseDown(e); }, true);
+		this.domElement.ownerDocument.addEventListener('mousemove', function(e) { _this.mouseMove(e); }, true);
+		this.domElement.ownerDocument.addEventListener('mouseup', function(e) { _this.mouseUp(e); }, true);
+		this.domElement.ownerDocument.addEventListener('pointerlockchange', function(e) { _this.onPointerlockChange(e); }, true);
+		this.domElement.ownerDocument.addEventListener('keyup', function(e) { _this.onKeyUp(e); }, true);
+		this.domElement.ownerDocument.addEventListener('keydown', function(e) { _this.onKeyDown(e); }, true);
 	}
 
 	disconnect() {
-		this.domElement.ownerDocument.removeEventListener('mousemove', function(e) { _this.onMouseMove(e); });
-		this.domElement.ownerDocument.removeEventListener('pointerlockchange', function(e) { _this.onPointerlockChange(e); });
-		this.domElement.ownerDocument.removeEventListener('keyup', function(e) { _this.onKeyUp(e); });
-		this.domElement.ownerDocument.removeEventListener('keydown', function(e) { _this.onKeyDown(e); });
+		this.domElement.ownerDocument.removeEventListener('mousedown', function(e) {}, true);
+		this.domElement.ownerDocument.removeEventListener('mousemove', function(e) {}, true);
+		this.domElement.ownerDocument.removeEventListener('mouseup', function(e) {}, true);
+		this.domElement.ownerDocument.removeEventListener('pointerlockchange', function(e) {}, true);
+		this.domElement.ownerDocument.removeEventListener('keyup', function(e) {}, true);
+		this.domElement.ownerDocument.removeEventListener('keydown', function(e) {}, true);
 	}
 }
 
