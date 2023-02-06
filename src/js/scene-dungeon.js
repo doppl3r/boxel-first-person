@@ -1,7 +1,8 @@
 import { Color, Fog, HemisphereLight, Scene } from 'three';
 import { Body, Box, Material, Vec3, World } from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
-import { Background } from './background.js';
+import { Background } from './background';
+import { Editor } from './editor';
 import { Player } from './player';
 
 class SceneDungeon extends Scene {
@@ -12,22 +13,28 @@ class SceneDungeon extends Scene {
         this.background = new Background();
         this.fog = new Fog(new Color('#ffffff'), 50, 100);
         this.world = new World({ allowSleep: true, gravity: new Vec3(0, 0, -9.82) });
+        this.editor = new Editor();
         this.debugger = new CannonDebugger(this, this.world, { color: '#00ff00', scale: 1 });
         this.debug = false;
     }
 
     init(app) {
+        // Declare main app
+        this.app = app;
+
         // Add player and assign app camera to player camera
         this.add(this.player);
-        app.camera = this.player.camera;
+        this.app.camera = this.player.camera;
 
-        // Add controls
-        app.controls.connect(document.body);
-        app.controls.bind(this.player);
+        // Connect app controls to document and add to interactive objects
+        this.app.controls.connect();
+        this.app.controls.quaternion.copy(this.player.camera.quaternion);
+        this.player.setControls(this.app.controls);
+        this.editor.setControls(this.app.controls);
 
         // Add background and bind to player position
         this.background.scale.multiplyScalar(this.player.camera.far * 0.9);
-        this.background.bind(this.player);
+        this.background.setTarget(this.player);
         this.add(this.background);
 
         // Add temporary floor for testing
@@ -35,7 +42,7 @@ class SceneDungeon extends Scene {
         var cols = 16;
         for (var col = 0; col < cols; col++) {
             for (var row = 0; row < rows; row++) {
-                var model = app.assets.models.clone('grass-fairway');
+                var model = this.app.assets.models.clone('grass-fairway');
                 var x = Math.floor(col - (cols / 2));
                 var y = Math.floor(row - (rows / 2));
                 model.position.set(x, y, 0);
@@ -51,7 +58,7 @@ class SceneDungeon extends Scene {
         }
 
         // Add test cube
-        var model = app.assets.models.clone('grass-fairway');
+        var model = this.app.assets.models.clone('grass-fairway');
         model.position.set(0, 0, 1);
         model.rotation.set(0, 0, Math.PI / 8);
         model.body = new Body({
@@ -89,6 +96,9 @@ class SceneDungeon extends Scene {
                 child.animation.update(delta);
             }
         }
+
+        // Update editor
+        this.editor.update(delta, alpha);
     }
 
     updatePhysics(delta, alpha) {

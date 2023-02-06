@@ -7,7 +7,7 @@ class Player extends Group {
         this.name = 'Player';
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
         this.camera.up.set(0, 0, 1);
-        this.camera.rotation.set(Math.PI / 2, 0, 0);
+        this.camera.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
         this.position.set(0, -3, 1.5);
         this.height = 1;
         this.radius = 0.5;
@@ -16,7 +16,7 @@ class Player extends Group {
             angularDamping: 1,
 			fixedRotation: false,
 			linearDamping: 0.05,
-			mass: 5,
+			mass: 1,
 			material: new Material({ friction: -1, restitution: -1 }),
 			position: this.position,
 			shape: new Sphere(this.radius), // Radius
@@ -25,12 +25,15 @@ class Player extends Group {
         });
         this.body.addEventListener('sleep', function(e) { var body = e.target; body.fixedRotation = true; body.updateMassProperties(); });
 		this.body.addEventListener('wakeup', function(e) { var body = e.target; body.fixedRotation = false; body.updateMassProperties(); });
-        this.camera.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
         this.raycaster = new Raycaster(this.position, this.camera.up.negate(), 0, 10);
         this.force = new Vector3();
         this.vector = new Vector3();
-        this.acceleration = 10;
+        this.acceleration = 1;
         this.speed = 5;
+    }
+
+    setControls(controls) {
+        this.controls = controls;
     }
 
     update(delta, alpha) {

@@ -46,7 +46,7 @@ class Background extends Mesh {
         }
     }
 
-    bind(target) {
+    setTarget(target) {
         this.target = target;
     }
 }
