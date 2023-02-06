@@ -34,6 +34,7 @@ class Player extends Group {
 
     setControls(controls) {
         this.controls = controls;
+        this.controls.quaternion.copy(this.camera.quaternion);
     }
 
     update(delta, alpha) {

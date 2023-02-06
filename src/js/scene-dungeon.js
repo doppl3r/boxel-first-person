@@ -26,9 +26,7 @@ class SceneDungeon extends Scene {
         this.add(this.player);
         this.app.setCamera(this.player.camera);
 
-        // Connect app controls to document and add to interactive objects
-        this.app.controls.connect();
-        this.app.controls.quaternion.copy(this.player.camera.quaternion);
+        // Set controls for interactive objects
         this.player.setControls(this.app.controls);
         this.editor.setControls(this.app.controls);
 

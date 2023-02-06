@@ -18,6 +18,7 @@ class App {
         this.stats = new Stats();
         this.assets = new Assets();
         this.controls = new Controls();
+        this.controls.connect();
         this.scene = new SceneDungeon();
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
