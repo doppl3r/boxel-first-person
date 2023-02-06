@@ -62,10 +62,6 @@ class Controls extends EventDispatcher {
 		return this.mouse.new.equals({ x: 0, y: 0, z: 0 }) == false;		
 	}
 
-	isMoving() {
-		return this.keys['KeyW'] == true || this.keys['KeyD'] == true || this.keys['KeyS'] == true || this.keys['KeyA'] == true;
-	}
-
 	keyDown(e) {
 		if (e.repeat) return;
 		this.keys[e.code] = true;

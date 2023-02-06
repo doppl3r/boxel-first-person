@@ -24,7 +24,7 @@ class SceneDungeon extends Scene {
 
         // Add player and assign app camera to player camera
         this.add(this.player);
-        this.app.camera = this.player.camera;
+        this.app.setCamera(this.player.camera);
 
         // Connect app controls to document and add to interactive objects
         this.app.controls.connect();
@@ -32,9 +32,12 @@ class SceneDungeon extends Scene {
         this.player.setControls(this.app.controls);
         this.editor.setControls(this.app.controls);
 
+        // Add editor to scene
+        this.add(this.editor);
+
         // Add background and bind to player position
         this.background.scale.multiplyScalar(this.player.camera.far * 0.9);
-        this.background.setTarget(this.player);
+        this.background.setTarget(this.app.camera); // Follow camera object
         this.add(this.background);
 
         // Add temporary floor for testing

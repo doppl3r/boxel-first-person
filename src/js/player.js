@@ -47,40 +47,43 @@ class Player extends Group {
     }
 
     updatePhysics(delta, alpha) {
-        // Add controls to body
-        if (this.controls) {
-            this.force.set(0, 0, 0); // Reset force
-            if (this.controls.keys['KeyW'] == true) this.force.y = this.acceleration;
-            if (this.controls.keys['KeyS'] == true) this.force.y = -this.acceleration;
-            if (this.controls.keys['KeyD'] == true) this.force.x = this.acceleration;
-            if (this.controls.keys['KeyA'] == true) this.force.x = -this.acceleration;
-            if (this.controls.keys['ControlLeft'] == true) { if (this.body.noclip == true) this.force.z = -this.acceleration; }
-            if (this.controls.keys['Space'] == true) {
-                if (this.body.noclip == true) this.force.z = this.acceleration;
-                else {
-                    this.controls.keys['Space'] = false;
-                    if (this.isGrounded()) {
-                        this.body.applyImpulse({ x: 0, y: 0, z: 5 * this.body.mass });
+        // Only move if camera is set from the app
+        if (this.camera.isActive) {
+            // Add controls to body
+            if (this.controls) {
+                this.force.set(0, 0, 0); // Reset force
+                if (this.controls.keys['KeyW'] == true) this.force.y = this.acceleration;
+                if (this.controls.keys['KeyS'] == true) this.force.y = -this.acceleration;
+                if (this.controls.keys['KeyD'] == true) this.force.x = this.acceleration;
+                if (this.controls.keys['KeyA'] == true) this.force.x = -this.acceleration;
+                if (this.controls.keys['ControlLeft'] == true) { if (this.body.noclip == true) this.force.z = -this.acceleration; }
+                if (this.controls.keys['Space'] == true) {
+                    if (this.body.noclip == true) this.force.z = this.acceleration;
+                    else {
+                        this.controls.keys['Space'] = false;
+                        if (this.isGrounded()) {
+                            this.body.applyImpulse({ x: 0, y: 0, z: 5 * this.body.mass });
+                        }
                     }
                 }
-            }
-
-            // Apply directional velocity to body
-            if (this.controls.isMoving()) {
-                this.body.angularDamping = 0.75;
-                this.force.applyEuler(this.controls.direction).clampLength(-this.acceleration, this.acceleration);
-                this.body.applyImpulse(this.force);
-
-                // Clamp body velocity speed
-                if (this.body.velocity.length() > this.speed) {
-                    this.vector.copy(this.body.velocity);
-                    this.vector.clampLength(-this.speed, this.speed);
-                    this.body.velocity.x = this.vector.x;
-                    this.body.velocity.y = this.vector.y;
+    
+                // Apply directional velocity to body
+                if (this.force.length() != 0) {
+                    this.body.angularDamping = 0.75;
+                    this.force.applyEuler(this.controls.direction).clampLength(-this.acceleration, this.acceleration);
+                    this.body.applyImpulse(this.force);
+    
+                    // Clamp body velocity speed
+                    if (this.body.velocity.length() > this.speed) {
+                        this.vector.copy(this.body.velocity);
+                        this.vector.clampLength(-this.speed, this.speed);
+                        this.body.velocity.x = this.vector.x;
+                        this.body.velocity.y = this.vector.y;
+                    }
                 }
-            }
-            else {
-                this.body.angularDamping = 1; // Grip rotation
+                else {
+                    this.body.angularDamping = 1; // Grip rotation
+                }
             }
         }
     }

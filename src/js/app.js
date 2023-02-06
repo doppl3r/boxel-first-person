@@ -82,6 +82,12 @@ class App {
         this.stats.end(); // End FPS counter
     }
 
+    setCamera(camera) {
+        this.camera.isActive = false;
+        this.camera = camera;
+        this.camera.isActive = true;
+    }
+
     updatePhysics(delta, alpha) {
         this.stats.begin(); // Begin FPS counter
         this.scene.updatePhysics(delta, alpha);
