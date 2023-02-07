@@ -5,12 +5,14 @@ class Player extends Group {
     constructor() {
         super();
         this.name = 'Player';
-        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
-        this.camera.up.set(0, 0, 1);
-        this.camera.rotation.set(Math.PI / 2, 0, 0); // Look at horizon
         this.position.set(0, -3, 1.5);
         this.height = 1;
         this.radius = 0.5;
+        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
+        this.camera.up.set(0, 0, 1);
+        this.camera.rotation.set(Math.PI / 2, 0, 0); // Look horizontal
+        this.camera.position.z = this.height;
+        this.add(this.camera);
         this.body = new Body({
             allowSleep: true,
             angularDamping: 1,
@@ -43,8 +45,6 @@ class Player extends Group {
 
         // Reposition camera to body position and height
         this.camera.quaternion.copy(this.controls.quaternion);
-        this.camera.position.copy(this.position);
-        this.camera.position.z += this.height;
     }
 
     updatePhysics(delta, alpha) {

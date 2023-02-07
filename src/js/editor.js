@@ -3,12 +3,13 @@ import { Group, PerspectiveCamera, Raycaster, Vector3 } from 'three';
 class Editor extends Group {
     constructor() {
         super();
-        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
-        this.camera.up.set(0, 0, 1);
-        this.camera.rotation.set(Math.PI / 2, 0, 0);
         this.raycaster = new Raycaster();
         this.force = new Vector3();
         this.vector = new Vector3();
+        this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
+        this.camera.up.set(0, 0, 1);
+        this.camera.rotation.set(Math.PI / 2, 0, 0);
+        this.add(this.camera);
 
         // Set basic physics (similar to CannonJS Body class)
         this.physics = {
@@ -28,9 +29,8 @@ class Editor extends Group {
                 // Interpolate model position
                 this.position.lerpVectors(this.physics.previousPosition, this.physics.position, alpha);
 
-                // Update camera properties
+                // Update camera rotation
                 this.camera.quaternion.copy(this.controls.quaternion);
-                this.camera.position.copy(this.position);
             }
         }
     }
