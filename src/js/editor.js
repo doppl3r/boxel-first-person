@@ -1,4 +1,4 @@
-import { Group, PerspectiveCamera, Raycaster, Vector3 } from 'three';
+import { BoxGeometry, Group, Mesh, MeshLambertMaterial, PerspectiveCamera, Raycaster, Vector3 } from 'three';
 
 class Editor extends Group {
     constructor() {
@@ -9,6 +9,10 @@ class Editor extends Group {
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
         this.camera.up.set(0, 0, 1);
         this.camera.rotation.set(Math.PI / 2, 0, 0);
+        this.selector = new Mesh(
+            new BoxGeometry(1, 1, 1),
+            new MeshLambertMaterial({ color: '#ffffff', opacity: 0.5, transparent: true})
+        );
         this.add(this.camera);
 
         // Set basic physics (similar to CannonJS Body class)
@@ -72,28 +76,60 @@ class Editor extends Group {
         }
     }
 
-    updateCursor() {
-        // TODO: Update cursor to raycaster contact
+    updateSelector() {
+        // TODO: Update selector to raycaster contact
+        this.raycaster.ray.origin.copy(this.position);
+        this.raycaster.ray.direction.copy(this.camera.up).negate().applyQuaternion(this.controls.quaternion);
+        var _this = this;
+
+        var contact = this.raycaster.intersectObject(this.scene)[0];
+        if (contact) {
+            var object = contact.object;
+            object.traverseAncestors(function(obj) {
+                if (obj.body) {
+                    _this.selector.position.copy(obj.position);
+                    _this.selector.rotation.copy(obj.rotation);
+                    _this.selector.scale.copy(obj.scale).multiplyScalar(1.125);
+                    _this.selector.selected = obj;
+                }
+            });
+        }
     }
 
     addObject() {
-        // TODO: Add object to cursor
+        // TODO: Add object to selector
     }
 
     removeObject() {
-        // TODO: Remove object at cursor contact
+        // TODO: Remove object at selector contact
+        var object = this.selector.selected;
+        if (object) {
+            if (object.body) {
+                object.parent.remove(object);
+            }
+        }
     }
 
     setControls(controls) {
         var _this = this;
         this.controls = controls;
         this.controls.addEventListener('mousedown', function(e) {
-            if (e.button == 0) _this.addObject();
-            if (e.button == 2) _this.removeObject();
+            if (_this.camera.isActive) {
+                if (e.button == 0) _this.addObject();
+                if (e.button == 2) _this.removeObject();
+            }
         });
         this.controls.addEventListener('mousemove', function(e) {
-            _this.updateCursor();
-        });
+            if (_this.camera.isActive) {
+                // Update the selector position
+                _this.updateSelector();
+            }
+        })
+    }
+
+    setScene(scene) {
+        this.scene = scene;
+        this.scene.add(this.selector);
     }
 }
 

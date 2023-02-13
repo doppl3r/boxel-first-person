@@ -31,6 +31,7 @@ class SceneDungeon extends Scene {
         this.editor.setControls(this.app.controls);
 
         // Add editor to scene
+        this.editor.setScene(this);
         this.add(this.editor);
 
         // Add background and bind to player position
@@ -80,6 +81,11 @@ class SceneDungeon extends Scene {
     add(object) {
         if (object.body) this.world.addBody(object.body);
         super.add(object);
+    }
+
+    remove(object) {
+        if (object.body) this.world.removeBody(object.body);
+        super.remove(object);
     }
 
     updateRender(delta, alpha) {
