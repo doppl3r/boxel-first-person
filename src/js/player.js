@@ -63,6 +63,7 @@ class Player extends Group {
                     else {
                         this.controls.keys['Space'] = false;
                         if (this.isGrounded()) {
+                            this.body.velocity.z = 0; // start at zero
                             this.body.applyImpulse({ x: 0, y: 0, z: 5 * this.body.mass });
                         }
                     }
@@ -102,7 +103,7 @@ class Player extends Group {
             var radius = this.radius;
 
             // Search ancestors for physical body
-            if (contact.distance < radius * 1.25) {
+            if (contact.distance < radius * 1.5) {
                 object.traverseAncestors(function(obj) {
                     if (obj.body) {
                         grounded = true;

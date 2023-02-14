@@ -2,7 +2,6 @@ import { Color, Fog, HemisphereLight, Scene } from 'three';
 import { Body, Box, Material, Vec3, World } from 'cannon-es';
 import CannonDebugger from 'cannon-es-debugger';
 import { Background } from './background';
-import { Editor } from './editor';
 import { Player } from './player';
 
 class SceneDungeon extends Scene {
@@ -13,7 +12,6 @@ class SceneDungeon extends Scene {
         this.background = new Background();
         this.fog = new Fog(new Color('#ffffff'), 50, 100);
         this.world = new World({ allowSleep: true, gravity: new Vec3(0, 0, -9.82) });
-        this.editor = new Editor();
         this.debugger = new CannonDebugger(this, this.world, { color: '#00ff00', scale: 1 });
         this.debug = false;
     }
@@ -28,11 +26,6 @@ class SceneDungeon extends Scene {
 
         // Set controls for interactive objects
         this.player.setControls(this.app.controls);
-        this.editor.setControls(this.app.controls);
-
-        // Add editor to scene
-        this.editor.setScene(this);
-        this.add(this.editor);
 
         // Add background and bind to player position
         this.background.scale.multiplyScalar(this.player.camera.far * 0.9);
@@ -103,9 +96,6 @@ class SceneDungeon extends Scene {
                 child.animation.update(delta);
             }
         }
-
-        // Update editor
-        this.editor.update(delta, alpha);
     }
 
     updatePhysics(delta, alpha) {
