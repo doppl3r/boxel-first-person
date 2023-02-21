@@ -30,7 +30,7 @@ class Player extends Group {
         this.raycaster = new Raycaster(this.position, this.camera.up.negate(), 0, 10);
         this.force = new Vector3();
         this.vector = new Vector3();
-        this.acceleration = 1;
+        this.acceleration = 3;
         this.speed = 5;
     }
 
