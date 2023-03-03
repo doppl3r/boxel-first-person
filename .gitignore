@@ -10,12 +10,12 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-package-lock.json
+dist-electron
+release
 *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+.vscode/.debug.env
 .idea
 .DS_Store
 *.suo
@@ -23,3 +23,8 @@ package-lock.json
 *.njsproj
 *.sln
 *.sw?
+
+# lockfile
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
