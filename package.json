@@ -15,6 +15,33 @@
     "build": "vue-tsc --noEmit && vite build && electron-builder",
     "preview": "vite preview"
   },
+  "build": {
+    "appId": "com.electron.boxel.dungeons",
+    "artifactName": "${productName}.${ext}",
+    "directories": {
+      "output": "release"
+    },
+    "icon": "public/img/png/icon512.png",
+    "files": [
+      "dist-electron",
+      "dist"
+    ],
+    "mac": {
+      "category": "public.app-category.sports-games",
+      "target": {
+        "target": "default",
+        "arch": [
+          "x64"
+        ]
+      }
+    },
+    "win": {
+      "target": "portable"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
     "cannon-es": "^0.20.0",
