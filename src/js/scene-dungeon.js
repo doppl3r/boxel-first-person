@@ -29,7 +29,7 @@ class SceneDungeon extends Scene {
 
         // Add background and bind to player position
         this.background.scale.multiplyScalar(this.player.camera.far * 0.9);
-        this.background.setTarget(this.app.camera); // Follow camera object
+        this.background.setTarget(this.player); // Follow camera object
         this.add(this.background);
 
         // Add temporary floor for testing

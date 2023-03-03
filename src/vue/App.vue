@@ -4,5 +4,5 @@
 </script>
 
 <template>
-  <Menu msg="Test" />
+  <Menu msg="UI created using src/vue/App.vue" />
 </template>
