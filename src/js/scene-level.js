@@ -4,10 +4,10 @@ import CannonDebugger from 'cannon-es-debugger';
 import { Background } from './background';
 import { Player } from './player';
 
-class SceneDungeon extends Scene {
+class SceneLevel extends Scene {
     constructor() {
         super();
-        this.name = 'Dungeon';
+        this.name = 'Level';
         this.player = new Player();
         this.background = new Background();
         this.fog = new Fog(new Color('#ffffff'), 50, 100);
@@ -115,4 +115,4 @@ class SceneDungeon extends Scene {
     }
 }
 
-export { SceneDungeon };
+export { SceneLevel };

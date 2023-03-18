@@ -1,6 +1,6 @@
 import { Clock, PCFSoftShadowMap, PerspectiveCamera, WebGLRenderer } from 'three';
 import { Controls } from './controls';
-import { SceneDungeon } from './scene-dungeon';
+import { SceneLevel } from './scene-level';
 import { Assets } from './assets';
 import Stats from './stats.js';
 
@@ -19,7 +19,7 @@ class App {
         this.assets = new Assets();
         this.controls = new Controls();
         this.controls.connect();
-        this.scene = new SceneDungeon();
+        this.scene = new SceneLevel();
         this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 100);
         this.renderer = new WebGLRenderer({ antialias: true, alpha: false });
         this.renderer.shadowMap.enabled = true;

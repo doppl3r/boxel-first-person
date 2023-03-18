@@ -1,8 +1,8 @@
-# Boxel Dungeons
+# Boxel First Person
 
 ## About
 
-A multiplayer dungeon crawler.
+A first person sandbox
 
 ## Local Development
 

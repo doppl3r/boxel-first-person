@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Boxel Dungeons",
-  "description": "Boxel Dungeons is a multiplayer dungeon crawler.",
+  "name": "Boxel First Person",
+  "description": "A first person sandbox.",
   "version": "0.0.1",
   "action": {
     "default_popup": "index.html",
-    "default_title": "Boxel Dungeons"
+    "default_title": "Boxel First Person"
   },
   "icons": { 
     "16": "img/png/icon16.png", 

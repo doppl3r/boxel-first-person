@@ -1,8 +1,8 @@
 {
-  "name": "boxel-dungeons",
+  "name": "boxel-first-person",
   "version": "0.0.1",
   "main": "dist-electron/main/index.js",
-  "description": "A multiplayer dungeon crawler",
+  "description": "A first person sandbox",
   "author": "Jacob DeBenedetto",
   "private": true,
   "debug": {
@@ -16,7 +16,7 @@
     "preview": "vite preview"
   },
   "build": {
-    "appId": "com.electron.boxel.dungeons",
+    "appId": "com.electron.boxel.fps",
     "artifactName": "${productName}.${ext}",
     "directories": {
       "output": "release"
